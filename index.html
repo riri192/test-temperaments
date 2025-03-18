@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des Tempéraments</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-top: 20px;
+        }
+
+        #resultsLabel {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: normal;
+            display: none; /* Masqué au départ */
+        }
+
+        #questionText {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        #options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        #options button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            background-color: white;
+            color: black; /* Texte en noir */
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        #options button:hover {
+            background-color: #f0f0f0;
+        }
+
+        #nextButton {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        #nextButton:hover {
+            background-color: #007bb5;
+        }
+
+        #progress {
+            font-size: 18px;
+            margin-top: 20px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 10px;
+            height: 10px;
+            margin-top: 10px;
+        }
+
+        .progress-bar div {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0;
+            border-radius: 10px;
+        }
+
+        #results {
+            font-size: 32px;
+            margin-top: 40px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* 📱 ✅ Version mobile : adaptation automatique */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px; /* Réduction du titre */
+            }
+
+            #questionText {
+                font-size: 20px;
+                padding: 0 15px; /* Ajoute des marges pour éviter que le texte touche les bords */
+            }
+
+            #options {
+                flex-direction: column; /* Met les réponses en colonne */
+                align-items: center;  /* Centre les boutons */
+            }
+
+            #options button {
+                width: 90%; /* Largeur presque totale pour un meilleur affichage */
+                font-size: 16px; /* Réduction de la taille */
+                padding: 12px 24px; /* Ajustement du padding */
+            }
+
+            #nextButton {
+                width: 90%; /* Bouton plus large */
+                font-size: 16px;
+            }
+
+            #progress {
+                width: 90%; /* Barre de progression plus petite sur mobile */
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Test des Tempéraments</h1>
+
+    <div id="resultsLabel">Résultats :</div> <!-- Cette mention est cachée au départ -->
+
+    <div id="questionText"></div>
+    <div id="options"></div>
+
+    <div id="progress">
+        <span id="progressText">1/40</span>
+        <div class="progress-bar">
+            <div id="progressBar"></div>
+        </div>
+    </div>
+
+    <button id="nextButton" onclick="nextQuestion()">Suivant</button>
+
+    <div id="results"></div>
+
+    <script>
+        const questions = [
+        { question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Expressif", "Aventurier", "Souple", "Analytique"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+        { question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Persistant", "Enjoué", "Paisible", "Persuasif"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+        { question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Soumis", "Esprit de sacrifice", "Déterminé", "Sociable"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Prévenant", "Calme", "Convaincant", "Esprit de compétition"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Rafraîchissant", "Respectueux", "Débrouillard", "Réservé"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Satisfait", "Sensible", "Spirituel", "Indépendant"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Organisé", "Patient", "Promoteur", "Positif"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Assuré", "Spontané", "Timide", "Méthodique"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Discipliné", "Serviable", "Optimiste", "Ouvert"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Amical", "Fidèle", "Énergique", "Amusant"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Audacieux", "Charmant", "Minutieux", "Diplomate"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Joyeux", "Constant", "Résolu", "Cultivé"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Idéaliste", "Indépendant", "Source d’inspiration", "Intensif"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Démonstratif", "Musclé", "Profond", "Esprit caustique"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Méthodique", "Actif", "Liant", "Actif"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Attentionné", "Tenace", "Tolérant", "Bavard"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Aime écouter", "Loyal", "Enthousiaste", "Leader"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Content de soi", "Meneur", "Mignon", "Aime les graphiques"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Perfectionniste", "Laxiste", "Populaire", "Créateur"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Dynamique", "Intrépide", "Équilibré", "Bien élevé"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Arrogant", "Autoritaire", "Déconcerté", "Pudique"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Indiscipliné", "Incompréhensif", "Impitoyable", "Sans enthousiasme"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Renfrogné", "Rancunier", "Répétitif", "Résistant"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Tatillon", "Peureux", "Franc", "Distrait"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Impatient", "Anxieux", "Interrompu", "Indécis"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Impopulaire", "Autonome", "Malveillant", "Imprévisible"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Entêté", "Agit au hasard", "Hésitant", "Exigeant"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Ordinaire", "Pessimiste", "Complaisant", "Orgueilleux"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Soupe au lait", "Désœuvré", "Isolé", "Raisonneur"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Naïf", "Attitude négative", "Nonchalant", "Effronté"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Inquiet", "Renfermé", "Aime être reconnu", "Bourreau de travail"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Excès de sensibilité", "Manque de tact", "Loquace", "Gêné"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Incertain", "Désorganisé", "Déprimé", "Dominateur"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Inconsistant", "Introverti", "Indifférent", "Intolérant"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Désordonné", "Lunatique", "Manipulateur", "Râleur"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Lent", "Têtu", "Sceptique", "Crâneur"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Solitaire", "Fait l’important", "Bruyant", "Paresseux"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Apathique", "Méfiant", "Écorché", "Emporté"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Vindicatif", "Agité", "Imprudent", "Désintéressé"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+		{ question: "Choisissez l'adjectif qui correspond le mieux à votre personnalité", options: ["Prône les compromis", "Critique", "Inconstant", "Rusé"], values: ["sanguin", "bilieux", "flegmatique", "melancolique"] },
+            // Ajoute ici tes autres questions, jusqu'à 40...
+        ];
+
+        let currentQuestionIndex = 0;
+        let answers = { sanguin: 0, bilieux: 0, flegmatique: 0, melancolique: 0 };
+        let selectedAnswer = null;
+
+        function displayQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            let question = questions[currentQuestionIndex];
+            document.getElementById("questionText").textContent = question.question;
+
+            let optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = '';  
+
+            question.options.forEach((option, index) => {
+                let button = document.createElement("button");
+                button.textContent = option;
+                button.onclick = () => selectAnswer(button, question.values[index]);
+
+                optionsDiv.appendChild(button);
+            });
+
+            document.getElementById("progressText").textContent = `${currentQuestionIndex + 1}/40`;
+            document.getElementById("progressBar").style.width = ((currentQuestionIndex + 1) / questions.length) * 100 + "%";
+
+            document.getElementById("nextButton").style.display = "none";
+        }
+
+        function selectAnswer(button, answer) {
+            document.querySelectorAll("#options button").forEach(btn => btn.style.backgroundColor = "white");
+            button.style.backgroundColor = "#4CAF50"; 
+
+            if (selectedAnswer) {
+                answers[selectedAnswer]--;
+            }
+
+            selectedAnswer = answer;
+            answers[selectedAnswer]++;
+
+            document.getElementById("nextButton").style.display = "block";
+        }
+
+        function nextQuestion() {
+            if (!selectedAnswer) {
+                alert("Veuillez sélectionner une réponse.");
+                return;
+            }
+
+            currentQuestionIndex++;
+            selectedAnswer = null;
+            displayQuestion();
+        }
+
+        function showResults() {
+            document.getElementById("questionText").style.display = "none";
+            document.getElementById("options").style.display = "none";
+            document.getElementById("progress").style.display = "none";
+            document.getElementById("nextButton").style.display = "none";
+
+            document.getElementById("resultsLabel").style.display = "block";
+
+            const totalQuestions = questions.length;
+            const sanguinPercentage = Math.round((answers.sanguin / totalQuestions) * 100);
+            const bilieuxPercentage = Math.round((answers.bilieux / totalQuestions) * 100);
+            const flegmatiquePercentage = Math.round((answers.flegmatique / totalQuestions) * 100);
+            const melancoliquePercentage = Math.round((answers.melancolique / totalQuestions) * 100);
+
+            document.getElementById("results").innerHTML = `
+                Sanguin: ${sanguinPercentage}% (${answers.sanguin}/40)<br>
+                Bilieux: ${bilieuxPercentage}% (${answers.bilieux}/40)<br>
+                Flegmatique: ${flegmatiquePercentage}% (${answers.flegmatique}/40)<br>
+                Melancolique: ${melancoliquePercentage}% (${answers.melancolique}/40)
+            `;
+        }
+
+        displayQuestion();
+    </script>
+
+</body>
+</html>
