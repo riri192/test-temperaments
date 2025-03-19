@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des Tempéraments</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            font-size: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            background-color: #f9f9f9;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            margin-top: 20px;
+            height: 30px;
+            border-radius: 5px;
+        }
+        .progress {
+            height: 30px;
+            background-color: green;
+            width: 0%;
+            border-radius: 5px;
+        }
+        .question-container {
+            margin-top: 30px;
+        }
+        .answers button, #downloadPDF {
+            display: block;
+            width: 90%;
+            margin: 10px auto;
+            padding: 15px;
+            font-size: 22px;
+            cursor: pointer;
+            border: none;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .answers button:hover, #downloadPDF:hover {
+            background-color: lightgreen;
+        }
+        #startButton {
+            background-color: yellow;
+            padding: 15px;
+            font-size: 22px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        input {
+            font-size: 20px;
+            padding: 10px;
+            width: 80%;
+            text-align: center;
+        }
+    </style>
+    <script>
+        let nomUtilisateur = "";
+        let currentQuestion = 0;
+        const questions = [
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Expressif", "Aventurier", "Analytique", "Souple"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Enjoué", "Persuasif", "Persistant", "Paisible"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Sociable", "Déterminé", "Esprit de sacrifice", "Soumis"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Convaincant", "Esprit de compétition", "Prévenant", "Calme"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Rafraîchissant", "Débrouillard", "Respectueux", "Réservé"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Spirituel", "Indépendant", "Sensible", "Satisfait"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Promoteur", "Positif", "Organisé", "Patient"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Spontané", "Assuré", "Méthodique", "Timide"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Optimiste", "Ouvert", "Discipliné", "Serviable"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Amusant", "Energique", "Fidèle", "Amical"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Charmant", "Audacieux", "Minutieux", "Diplomate"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Joyeux", "Résolu", "Cultivé", "Constant"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Source d'inspiration", "Indépendant", "Idéaliste", "Inoffensif"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Démonstratif", "Décisif", "Profond", "Esprit caustique"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Liant", "Actif", "Musical", "Médiateur"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Bavard", "Tenace", "Attentionné", "Tolérant"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Enthousiaste", "Leader", "Loyal", "Aime écouter"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Mignon", "Meneur", "Aime les graphiques", "Content de soi"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Populaire", "Créateur", "Perfectionniste", "Laxiste"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Dynamique", "Intrépide", "Bien élevé", "Equilibré"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Arrogant", "Autoritaire", "Pudique", "Déconcerté"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Indiscipliné", "Incompréhensif", "Impitoyable", "Sans enthousiasme"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Répétitif", "Résistant", "Rancunier", "Renfrogné"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Distrait", "Franc", "Tatillon", "Peureux"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Interrompt", "Impatient", "Anxieux", "Indécis"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Imprévisible", "Malveillant", "Impopulaire", "Autonome"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Agit au hasard", "Entêté", "Exigeant", "Hésitant"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Complaisant", "Orgueilleux", "Pessimiste", "Ordinaire"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Soupe au lait", "Raisonner", "Isolé", "Désœuvré"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Naïf", "Effronté", "Attitude négative", "Nonchalant"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Aime être reconnu", "Bourreau de travail", "Renfermé", "Inquiet"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Loquace", "Manque de tact", "Excès de sensibilité", "Gêné"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Désorganisé", "Dominateur", "Déprimé", "Incertain"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Inconsistant", "Intolérant", "Introverti", "Indifférent"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Désordonné", "Manipulateur", "Lunatique", "Râleur"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Crâneur", "Têtu", "Sceptique", "Lent"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Bruyant", "Fait l'important", "Solitaire", "Paresseux"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Écervelé", "Emporté", "Méfiant", "Apathique"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Agité", "Imprudent", "Vindicatif", "Désintéressé"] },
+    { text: "Choisissez l'adjectif qui correspond le mieux à votre personnalité :", answers: ["Inconstant", "Rusé", "Critique", "Prône les compromis"] }
+
+        ];
+        let results = { sanguin: 0, bilieux: 0, mélancolique: 0, flegmatique: 0 };
+
+        function passerAuTest() {
+            nomUtilisateur = document.getElementById("nomUtilisateur").value.trim();
+            if (nomUtilisateur === "") {
+                alert("Veuillez entrer votre nom.");
+                return;
+            }
+            document.getElementById("pageAccueil").classList.add("hidden");
+            document.getElementById("testContainer").classList.remove("hidden");
+            afficherQuestion();
+        }
+
+        function afficherQuestion() {
+            if (currentQuestion < questions.length) {
+                document.getElementById("question-text").innerText = questions[currentQuestion].text;
+                let answersContainer = document.getElementById("answers");
+                answersContainer.innerHTML = "";
+                questions[currentQuestion].answers.forEach((answer, index) => {
+                    let button = document.createElement("button");
+                    button.innerText = answer;
+                    button.onclick = () => enregistrerReponse(index);
+                    answersContainer.appendChild(button);
+                });
+                document.getElementById("progress").style.width = ((currentQuestion + 1) / questions.length) * 100 + "%";
+            } else {
+                afficherResultats();
+            }
+        }
+
+        function enregistrerReponse(index) {
+            // Association des réponses aux tempéraments
+            if (index === 0) results.sanguin++;
+            else if (index === 1) results.bilieux++;
+            else if (index === 2) results.mélancolique++;
+            else if (index === 3) results.flegmatique++;
+
+            currentQuestion++;
+            afficherQuestion();
+        }
+
+        function afficherResultats() {
+            document.getElementById("question-container").classList.add("hidden");
+            document.getElementById("results").classList.remove("hidden");
+
+            let total = results.sanguin + results.bilieux + results.mélancolique + results.flegmatique;
+            let pourcentages = {
+                sanguin: Math.round((results.sanguin / total) * 100),
+                bilieux: Math.round((results.bilieux / total) * 100),
+                mélancolique: Math.round((results.mélancolique / total) * 100),
+                flegmatique: Math.round((results.flegmatique / total) * 100)
+            };
+
+            document.getElementById("result-text").innerHTML = 
+                `<strong>${nomUtilisateur}</strong>, voici vos résultats : <br><br>
+                <strong>Sanguin :</strong> ${results.sanguin} (${pourcentages.sanguin}%) <br>
+                <strong>Bilieux :</strong> ${results.bilieux} (${pourcentages.bilieux}%) <br>
+                <strong>Mélancolique :</strong> ${results.mélancolique} (${pourcentages.mélancolique}%) <br>
+                <strong>Flegmatique :</strong> ${results.flegmatique} (${pourcentages.flegmatique}%)`;
+        }
+
+        function genererPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            let total = results.sanguin + results.bilieux + results.mélancolique + results.flegmatique;
+            let pourcentages = {
+                sanguin: Math.round((results.sanguin / total) * 100),
+                bilieux: Math.round((results.bilieux / total) * 100),
+                mélancolique: Math.round((results.mélancolique / total) * 100),
+                flegmatique: Math.round((results.flegmatique / total) * 100)
+            };
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.text("Résultats du Test des Tempéraments", 20, 20);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(14);
+            doc.text(`Nom : ${nomUtilisateur}`, 20, 40);
+            doc.text(`Sanguin : ${results.sanguin} (${pourcentages.sanguin}%)`, 20, 60);
+            doc.text(`Bilieux : ${results.bilieux} (${pourcentages.bilieux}%)`, 20, 80);
+            doc.text(`Mélancolique : ${results.mélancolique} (${pourcentages.mélancolique}%)`, 20, 100);
+            doc.text(`Flegmatique : ${results.flegmatique} (${pourcentages.flegmatique}%)`, 20, 120);
+
+            doc.save(`Resultats_${nomUtilisateur}.pdf`);
+        }
+    </script>
+</head>
+<body>
+
+    <div id="pageAccueil" class="container">
+        <h1>Test des Tempéraments</h1>
+        <p>Veuillez entrer votre nom :</p>
+        <input type="text" id="nomUtilisateur" placeholder="Votre nom">
+        <br><br>
+        <button id="startButton" onclick="passerAuTest()">Suivant</button>
+    </div>
+
+    <div id="testContainer" class="container hidden">
+        <div class="progress-bar"><div id="progress" class="progress"></div></div>
+        <div id="question-container" class="question-container">
+            <h2 id="question-text"></h2>
+            <div id="answers" class="answers"></div>
+        </div>
+        <div id="results" class="hidden">
+            <h2>Résultats</h2>
+            <p id="result-text"></p>
+            <button id="downloadPDF" onclick="genererPDF()">📄 Télécharger en PDF</button>
+        </div>
+    </div>
+
+</body>
+</html>
